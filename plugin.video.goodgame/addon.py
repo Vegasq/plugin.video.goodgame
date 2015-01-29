@@ -20,6 +20,9 @@ class GGKodi(object):
         {'tag': 'starcraft-ii-heart-of-the-swarm', 'title': 'Starcraft II'},
         {'tag': 'hearthstone-heroes-of-warcraft', 'title': 'Heartstone'},
         {'tag': 'heroes-of-the-storm', 'title': 'Heroes of the Storm'},
+        {'tag': 'dota-2', 'title': 'DotA 2'},
+        {'tag': 'league-of-legends', 'title': 'League of Legends'},
+        {'tag': 'counter-strike-global-offensive', 'title': 'Counter Strike: GO'},
     ]
     idselector = '.*player\?(\w*)\\"'
     gg_api_url = "http://goodgame.ru/api/getchannelsbygame?game=%s&fmt=json"
