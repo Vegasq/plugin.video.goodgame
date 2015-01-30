@@ -26,15 +26,44 @@ from wrappers import get_game_tag
 
 class GGKodi(object):
     DEBUG = False
+
+    # TODO: Well... I beleave we need some way to get this data from site.
     avaliable_games = [
-        {'tag': 'warcraft-iii-the-frozen-throne', 'title': 'Warcraft III'},
-        {'tag': 'starcraft-ii-heart-of-the-swarm', 'title': 'Starcraft II'},
-        {'tag': 'hearthstone-heroes-of-warcraft', 'title': 'Heartstone'},
-        {'tag': 'heroes-of-the-storm', 'title': 'Heroes of the Storm'},
-        {'tag': 'dota-2', 'title': 'DotA 2'},
-        {'tag': 'league-of-legends', 'title': 'League of Legends'},
-        {'tag': 'counter-strike-global-offensive',
-         'title': 'Counter Strike: GO'},
+        {
+            'title': 'Warcraft III',
+            'tag': 'warcraft-iii-the-frozen-throne',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_4_dhWW_poster.jpg'
+        },
+        {
+            'title': 'Starcraft II',
+            'tag': 'starcraft-ii-heart-of-the-swarm',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_7_TuPB_poster.jpg'
+        },
+        {
+            'title': 'Heartstone',
+            'tag': 'hearthstone-heroes-of-warcraft',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_38_mc4E_poster.jpg'
+        },
+        {
+            'title': 'Heroes of the Storm',
+            'tag': 'heroes-of-the-storm',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_33515_O8wH_poster.jpg'
+        },
+        {
+            'title': 'DotA 2',
+            'tag': 'dota-2',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_19_PruP_poster.jpg'
+        },
+        {
+            'title': 'League of Legends',
+            'tag': 'league-of-legends',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_21_UuSM_poster.jpg'
+        },
+        {
+            'title': 'Counter Strike: GO',
+            'tag': 'counter-strike-global-offensive',
+            'cover': 'http://goodgame.ru/files/logotypes/gm_25_OwBH_poster.jpg'
+        },
     ]
     idselector = '.*player\?(\w*)\\"'
     gg_api_url = "http://goodgame.ru/api/getchannelsbygame?game=%s&fmt=json"
@@ -68,6 +97,7 @@ class GGKodi(object):
             self._kodi.add(
                 title=game_info['title'],
                 url=self._build_url(game_info),
+                image=game_info['cover']
             )
         self._kodi.commit()
 

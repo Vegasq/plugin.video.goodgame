@@ -36,7 +36,6 @@ class FakeWrapper(GenericWrapper):
     _is_kodi = False
     def add(self, *args, **kwargs):
         print('Item added: %s' % kwargs['title'])
-        print('\n')
 
     def commit(self, *args, **kwargs):
         pass
@@ -45,7 +44,9 @@ class FakeWrapper(GenericWrapper):
 class KodiWrapper(GenericWrapper):
     _is_kodi = True
     def add(self, title, url, is_folder=True, image='DefaultFolder.png'):
-        li = xbmcgui.ListItem(title, iconImage=image)
+        li = xbmcgui.ListItem(title,
+                              iconImage=image,
+                              thumbnailImage=image)
         self._add_to_dir(li, url, is_folder)
 
     def _add_to_dir(self, li, url, is_folder):
