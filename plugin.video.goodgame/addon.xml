@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.goodgame" name="GoodGame KODI XBMC Plugin" version="0.2" provider-name="Niko Yakovlev">
+<addon id="plugin.video.goodgame" name="GoodGame" version="0.3" provider-name="Niko Yakovlev">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.requests" version="2.3.0"/>
@@ -8,15 +8,15 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Goodgame plugin</summary>
+    <summary lang="en">GoodGame video plugin</summary>
     <description lang="en">With Love from Ukraine for GG!</description>
     <disclaimer lang="en"></disclaimer>
     <language></language>
     <platform>all</platform>
     <license></license>
-    <forum></forum>
-    <website>p3ka.com</website>
+    <forum>goodgame.ru/topic/47719/</forum>
+    <website>http://p3ka.com</website>
     <email>vegasq@gmail.com</email>
-    <source></source>
+    <source>https://github.com/Vegasq/plugin.video.goodgame</source>
   </extension>
 </addon>

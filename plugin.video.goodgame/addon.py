@@ -1,20 +1,31 @@
+#!/usr/bin/env python
+# Copyright (c) 2015 Niko Yakovlev <vegasq@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import sys
 import re
-import xbmcgui
-import xbmcplugin
 import requests
 import httplib
 import urllib
-import urlparse
 
-
-addon_handle = int(sys.argv[1])
-base_url = sys.argv[0]
-args = urlparse.parse_qs(sys.argv[2][1:])
-xbmcplugin.setContent(addon_handle, 'movies')
+from wrappers import get_kodi
+from wrappers import get_game_tag
 
 
 class GGKodi(object):
+    DEBUG = False
     avaliable_games = [
         {'tag': 'warcraft-iii-the-frozen-throne', 'title': 'Warcraft III'},
         {'tag': 'starcraft-ii-heart-of-the-swarm', 'title': 'Starcraft II'},
@@ -22,17 +33,22 @@ class GGKodi(object):
         {'tag': 'heroes-of-the-storm', 'title': 'Heroes of the Storm'},
         {'tag': 'dota-2', 'title': 'DotA 2'},
         {'tag': 'league-of-legends', 'title': 'League of Legends'},
-        {'tag': 'counter-strike-global-offensive', 'title': 'Counter Strike: GO'},
+        {'tag': 'counter-strike-global-offensive',
+         'title': 'Counter Strike: GO'},
     ]
     idselector = '.*player\?(\w*)\\"'
     gg_api_url = "http://goodgame.ru/api/getchannelsbygame?game=%s&fmt=json"
+    stream_direct_url = 'http://hls.goodgame.ru/hls/%s_%s.m3u8'
     available_qualities = [240, 480, 720]
+
+    def __init__(self, kodi):
+        self._kodi = kodi
 
     def set_game(self, game):
         self.game = game
 
     def _build_url(self, query):
-        return base_url + '?' + urllib.urlencode(query)
+        return sys.argv[0] + '?' + urllib.urlencode(query)
 
     def _extract_id(self, src):
         data = re.search(self.idselector, src)
@@ -49,14 +65,11 @@ class GGKodi(object):
 
     def create_main_menu(self):
         for game_info in self.avaliable_games:
-            url = self._build_url(game_info)
-            li = xbmcgui.ListItem(game_info['title'],
-                                  iconImage='DefaultFolder.png')
-            xbmcplugin.addDirectoryItem(handle=addon_handle,
-                                        url=url,
-                                        listitem=li,
-                                        isFolder=True)
-        xbmcplugin.endOfDirectory(addon_handle)
+            self._kodi.add(
+                title=game_info['title'],
+                url=self._build_url(game_info),
+            )
+        self._kodi.commit()
 
     def create_streams_menu(self):
         data = requests.get(self.gg_api_url % self.game)
@@ -65,25 +78,41 @@ class GGKodi(object):
         for id in data:
             stream_id = self._extract_id(data[id]['embed'])
             if not stream_id:
+                if self.DEBUG:
+                    print('ID not found: %s' % data[id]['key'])
+                    print('            : %s' % data[id]['title'])
+                    print('\n')
                 continue
 
             for qualitie in self.available_qualities:
-                url = 'http://hls.goodgame.ru/hls/%s_%s.m3u8' % (stream_id, qualitie)
+                url = self.stream_direct_url % (stream_id, qualitie)
                 if not self._is_stream_avaliable(url):
+                    if self.DEBUG:
+                        print('M3U not found: %s' % data[id]['key'])
+                        print('             : %s' % data[id]['title'])
+                        print('             : %s' % url)
+                        print('             : %s' % data[id]['embed'])
+                        print('\n')
                     continue
-                li = xbmcgui.ListItem(
-                    '[%sp] %s - %s' % (qualitie, data[id]['key'], data[id]['title']),
-                    iconImage=data[id]['img'])
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=li)
 
-        xbmcplugin.endOfDirectory(addon_handle)
+                self._kodi.add(
+                    title='[%sp] %s - %s' % (
+                        qualitie, data[id]['key'], data[id]['title']),
+                    url=url,
+                    is_folder=False,
+                    image=data[id]['img']
+                )
+
+        self._kodi.commit()
 
 
-game = args.get('tag', None)
-ggk = GGKodi()
+if __name__ == '__main__':
+    kodi_wrapper = get_kodi()
+    game_tag = get_game_tag(kodi_wrapper)
+    ggk = GGKodi(kodi_wrapper)
 
-if game is None:
-    ggk.create_main_menu()
-else:
-    ggk.set_game(args['tag'][0])
-    ggk.create_streams_menu()
+    if game_tag is False:
+        ggk.create_main_menu()
+    else:
+        ggk.set_game(game_tag)
+        ggk.create_streams_menu()
