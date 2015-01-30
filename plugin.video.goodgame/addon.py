@@ -32,12 +32,12 @@ class GGKodi(object):
         {
             'title': 'Warcraft III',
             'tag': 'warcraft-iii-the-frozen-throne',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_4_dhWW_poster.jpg'
+            'cover': 'war3.png'
         },
         {
             'title': 'Starcraft II',
             'tag': 'starcraft-ii-heart-of-the-swarm',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_7_TuPB_poster.jpg'
+            'cover': 'sc2.png'
         },
         {
             'title': 'Heartstone',
@@ -47,7 +47,7 @@ class GGKodi(object):
         {
             'title': 'Heroes of the Storm',
             'tag': 'heroes-of-the-storm',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_33515_O8wH_poster.jpg'
+            'cover': 'hots.png'
         },
         {
             'title': 'DotA 2',
@@ -97,7 +97,7 @@ class GGKodi(object):
             self._kodi.add(
                 title=game_info['title'],
                 url=self._build_url(game_info),
-                image=game_info['cover']
+                image=self._kodi.image(game_info['cover'])
             )
         self._kodi.commit()
 

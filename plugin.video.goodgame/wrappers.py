@@ -15,8 +15,11 @@
 # limitations under the License.
 
 import sys
+import os
 import urlparse
 try:
+    import xbmc
+    import xbmcaddon
     import xbmcgui
     import xbmcplugin
     addon_handle = int(sys.argv[1])
@@ -40,6 +43,9 @@ class FakeWrapper(GenericWrapper):
     def commit(self, *args, **kwargs):
         pass
 
+    def image(self, *args, **kwargs):
+        pass
+
 
 class KodiWrapper(GenericWrapper):
     _is_kodi = True
@@ -58,6 +64,16 @@ class KodiWrapper(GenericWrapper):
 
     def commit(self):
         xbmcplugin.endOfDirectory(addon_handle)
+
+    def image(self, image_name):
+        if image_name.startswith('http:'):
+            return image_name
+
+        plugin_id = 'plugin.video.goodgame'
+        addon = xbmcaddon.Addon(id=plugin_id)
+        addon_path = (addon.getAddonInfo('path').decode('utf-8'))
+        return xbmc.translatePath(
+            os.path.join(addon_path, 'resources', 'media', image_name))
 
 
 def get_kodi():
