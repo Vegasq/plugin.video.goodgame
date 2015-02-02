@@ -91,3 +91,6 @@ def get_game_tag(kodi):
         return args['tag'][0]
 
     return False
+
+def get_args():
+    return urlparse.parse_qs(sys.argv[2][1:])

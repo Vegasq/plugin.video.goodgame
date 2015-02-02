@@ -14,56 +14,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import abc
+import inspect
 import sys
-import re
-import requests
-import httplib
 import urllib
 
 from wrappers import get_kodi
-from wrappers import get_game_tag
+from wrappers import get_args
 
 import stream_platforms
 
 
-class StreamViewer(object):
-    DEBUG = False
+class Screen():
+    _platform = None
 
-    def __init__(self, kodi, stream_platform):
-        self._kodi = kodi
-        self._platform = stream_platform
-
-    def set_game(self, game):
-        self.game = game
+    def __init__(self):
+        self._args = get_args()
+        self._kodi = get_kodi()
+        self._parse_args()
 
     def _build_url(self, query):
+        query.pop('title')
         return sys.argv[0] + '?' + urllib.urlencode(query)
 
-    def create_main_menu(self):
-        for game_info in self._platform.get_menu():
-            self._kodi.add(
-                title=game_info['title'],
-                url=self._build_url(game_info),
-                image=self._kodi.image(game_info['cover'])
-            )
-        self._kodi.commit()
+    def _parse_args(self):
+        if 'platform' not in self._args:
+            # MainMenu
+            self._platform = stream_platforms.PlatformsMenu()
+        else:
+            # Search for platform in platforms
+            for platform in stream_platforms.__dict__:
+                kls = stream_platforms.__dict__[platform]
+                if (
+                    inspect.isclass(kls) and
+                    issubclass(kls, stream_platforms.StreamPlatform) and
+                    kls != stream_platforms.StreamPlatform and
+                    self._args['platform'][0] == platform
+                ):
+                    self._platform = stream_platforms.__dict__[platform]()
 
-    def create_streams_menu(self):
-        streams = self._platform.get_streams(game=self.game)
-        for stream in streams:
-            self._kodi.add(**stream)
+    def display(self):
+        menu = self._platform.display(self._args)
+        for item in menu:
+            self._kodi.add(
+                title=item['title'],
+                url=self._build_url(item),
+                image=self._kodi.image(item['cover']),
+                is_folder=item['is_folder']
+            )
         self._kodi.commit()
 
 
 if __name__ == '__main__':
-    kodi_wrapper = get_kodi()
-    stream_platform = stream_platforms.GoodGame()
-    game_tag = get_game_tag(kodi_wrapper)
-    sv = StreamViewer(kodi_wrapper, stream_platform)
-
-    if game_tag is False and stream_platform.is_directory_based():
-        sv.create_main_menu()
-    else:
-        sv.set_game(game_tag)
-        sv.create_streams_menu()
+    screen = Screen()
+    screen.display()

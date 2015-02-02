@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import abc
 import requests
 import re
 import httplib
@@ -62,7 +61,8 @@ class CyberGame(StreamPlatform):
                 'title': channel['channel name'],
                 'url': url,
                 'is_folder': False,
-                'image': channel['thumbnail'],
+                'cover': channel['thumbnail'],
+                'platform': 'CyberGame'
             })
         return result
 
@@ -71,6 +71,9 @@ class CyberGame(StreamPlatform):
 
     def get_menu(self):
         return []
+
+    def display(self, args):
+        return self.get_streams()
 
 
 class GoodGame(StreamPlatform):
@@ -86,37 +89,37 @@ class GoodGame(StreamPlatform):
         {
             'title': 'Warcraft III',
             'tag': 'warcraft-iii-the-frozen-throne',
-            'cover': 'war3.png'
+            'cover': 'war3.png',
         },
         {
             'title': 'Starcraft II',
             'tag': 'starcraft-ii-heart-of-the-swarm',
-            'cover': 'sc2.png'
+            'cover': 'sc2.png',
         },
         {
             'title': 'Heartstone',
             'tag': 'hearthstone-heroes-of-warcraft',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_38_mc4E_poster.jpg'
+            'cover': 'http://goodgame.ru/files/logotypes/gm_38_mc4E_poster.jpg',
         },
         {
             'title': 'Heroes of the Storm',
             'tag': 'heroes-of-the-storm',
-            'cover': 'hots.png'
+            'cover': 'hots.png',
         },
         {
             'title': 'DotA 2',
             'tag': 'dota-2',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_19_PruP_poster.jpg'
+            'cover': 'http://goodgame.ru/files/logotypes/gm_19_PruP_poster.jpg',
         },
         {
             'title': 'League of Legends',
             'tag': 'league-of-legends',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_21_UuSM_poster.jpg'
+            'cover': 'http://goodgame.ru/files/logotypes/gm_21_UuSM_poster.jpg',
         },
         {
             'title': 'Counter Strike: GO',
             'tag': 'counter-strike-global-offensive',
-            'cover': 'http://goodgame.ru/files/logotypes/gm_25_OwBH_poster.jpg'
+            'cover': 'http://goodgame.ru/files/logotypes/gm_25_OwBH_poster.jpg',
         },
     ]
 
@@ -159,9 +162,41 @@ class GoodGame(StreamPlatform):
                         qualitie, data[id]['key'], data[id]['title']),
                     'url': url,
                     'is_folder': False,
-                    'image': data[id]['img']
+                    'cover': data[id]['img']
                 })
         return avaliable_streams
 
     def get_menu(self):
+        for item in self.avaliable_games:
+            item['is_folder'] = False
+            item['platform'] = 'GoodGame'
         return self.avaliable_games
+
+    def display(self, args):
+        if 'tag' in args:
+            return self.get_streams(args['tag'][0])
+        else:
+            return self.get_menu()
+
+
+class PlatformsMenu(StreamPlatform):
+    _is_directory_based = True
+
+    def get_platform(self):
+        return [
+            {
+                'title': 'GoodGame',
+                'is_folder': True,
+                'screen': 'GoodGame',
+                'cover': 'goodgame.png'
+            },
+            {
+                'title': 'CyberGame',
+                'is_folder': True,
+                'screen': 'CyberGame',
+                'cover': 'cybergame.png'
+            },
+        ]
+
+    def display(self, args):
+        return self.get_platform()
